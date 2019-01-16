@@ -1,17 +1,23 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import app from './modules/app'
-import user from './modules/user'
-import getters from './getters'
+import Vue from "vue";
+import Vuex from "vuex";
+import * as actions from "./actions";
+import * as getters from "./getters";
+import app from "./modules/app";
+import admin from "./modules/admin";
 
-Vue.use(Vuex)
+if (process.env.NODE_ENV === "development") {
+    Vue.use(Vuex);
+}
 
-const store = new Vuex.Store({
-  modules: {
-    app,
-    user
-  },
-  getters
-})
+const debug = process.env.NODE_ENV !== "production";
 
-export default store
+export default new Vuex.Store({
+    actions,
+    getters,
+    modules: {
+        app,
+        admin
+    },
+    strict: debug
+    // plugins: debug ? [createLogger()] : []
+});

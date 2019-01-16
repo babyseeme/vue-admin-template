@@ -1,152 +1,211 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from "vue";
+import VueRouter from "vue-router";
 
-// in development-env not use lazy-loading, because lazy-loading too many pages will cause webpack hot update too slow. so only in production use lazy-loading;
-// detail: https://panjiachen.github.io/vue-element-admin-site/#/lazy-loading
+if (process.env.NODE_ENV === "development") {
+    Vue.use(VueRouter);
+}
 
-Vue.use(Router)
+import { ROUTER_MODE } from "../config/app";
 
-/* Layout */
-import Layout from '../views/layout/Layout'
+import Home from "../views/home/index.vue";
 
-/**
-* hidden: true                   if `hidden:true` will not show in the sidebar(default is false)
-* alwaysShow: true               if set true, will always show the root menu, whatever its child routes length
-*                                if not set alwaysShow, only more than one route under the children
-*                                it will becomes nested mode, otherwise not show the root menu
-* redirect: noredirect           if `redirect:noredirect` will no redirect in the breadcrumb
-* name:'router-name'             the name is used by <keep-alive> (must set!!!)
-* meta : {
-    title: 'title'               the name show in submenu and breadcrumb (recommend set)
-    icon: 'svg-name'             the icon show in the sidebar
-    breadcrumb: false            if false, the item will hidden in breadcrumb(default is true)
-  }
-**/
+// 管理组相关
+import adminRouter from "../views/userManage/admin/router.vue";
+import authAdmin from "../views/userManage/admin/authAdmin.vue";
+import authRole from "../views/userManage/admin/authRole.vue";
+import authPermissionRule from "../views/userManage/admin/authPermissionRule.vue";
+
+// 上传相关
+import tinymce from "../views/components/tinymce-demo.vue";
+import upload from "../views/components/upload-demo.vue";
+
+// 广告管理
+import adSite from "../views/adManage/adSite.vue";
+import ad from "../views/adManage/ad.vue";
+
+// Vue.use(VueRouter);
+
+const err401 = r =>
+    require.ensure([], () => r(require("../views/error/err401.vue")), "home");
+const err404 = r =>
+    require.ensure([], () => r(require("../views/error/err404.vue")), "home");
+const login = r =>
+    require.ensure([], () => r(require("../views/login/index.vue")), "home");
+const main = r =>
+    require.ensure([], () => r(require("../views/home/main.vue")), "home");
+
+// 注意 权限字段 authRule （严格区分大小写）
 export const constantRouterMap = [
-  { path: '/login', component: () => import('@/views/login/index'), hidden: true },
-  { path: '/404', component: () => import('@/views/404'), hidden: true },
-
-  {
-    path: '/',
-    component: Layout,
-    redirect: '/dashboard',
-    name: 'Dashboard',
-    hidden: true,
-    children: [{
-      path: 'dashboard',
-      component: () => import('@/views/dashboard/index')
-    }]
-  },
-
-  {
-    path: '/example',
-    component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
-    children: [
-      {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
-      },
-      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
-      }
-    ]
-  },
-
-  {
-    path: '/nested',
-    component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
+    {
+        path: "*",
+        component: err404,
+        hidden: true
     },
-    children: [
-      {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
+    {
+        path: "/401",
+        component: err401,
+        name: "401",
+        hidden: true
+    },
+    {
+        path: "/404",
+        component: err404,
+        name: "404",
+        hidden: true
+    },
+    {
+        path: "/500",
+        component: err404,
+        name: "500",
+        hidden: true
+    },
+    {
+        path: "/login",
+        component: login,
+        name: "登录",
+        hidden: true
+    },
+    {
+        path: "/",
+        component: Home,
+        redirect: "/readme",
+        name: "首页",
+        hidden: true
+    },
+    {
+        path: "/readme",
+        component: Home,
+        redirect: "/readme/main",
+        icon: "shouye",
+        name: "控制台",
+        noDropdown: true,
         children: [
-          {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
-          }
+            {
+                path: "main",
+                component: main
+            }
         ]
-      },
-      {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        meta: { title: 'menu2' }
-      }
-    ]
-  },
+    },
+    {
+        path: "/components",
+        redirect: "/components/uploadList",
+        component: Home,
+        name: "components",
+        icon: "tongyong",
+        children: [
+            {
+                path: "uploadList",
+                name: "上传图片的展示",
+                component: r =>
+                    require.ensure(
+                        [],
+                        () => r(require("../views/components/uploadList.vue")),
+                        "home"
+                    )
+            },
+            {
+                path: "tinymce",
+                name: "tinymce富文本编辑器",
+                component: tinymce
+            },
+            {
+                path: "upload",
+                name: "上传的demo",
+                component: upload
+            }
+        ]
+    }
+];
 
-  {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
-      }
-    ]
-  },
+export default new VueRouter({
+    // mode: 'history', //后端支持可开
+    mode: ROUTER_MODE,
+    routes: constantRouterMap,
+    strict: process.env.NODE_ENV !== "production"
+});
 
-  { path: '*', redirect: '/404', hidden: true }
-]
-
-export default new Router({
-  // mode: 'history', //后端支持可开
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRouterMap
-})
+export const asyncRouterMap = [
+    {
+        path: "/userManage",
+        redirect: "/userManage/adminManage/index",
+        component: Home,
+        icon: "guanliyuan1",
+        name: "用户管理",
+        meta: {
+            authRule: ["user_manage"]
+        },
+        // noDropdown: true,
+        children: [
+            {
+                path: "/userManage/adminManage",
+                component: adminRouter,
+                redirect: "/userManage/authAdmin/index",
+                name: "管理组",
+                icon: "0",
+                meta: {
+                    authRule: ["user_manage/admin_manage"]
+                },
+                children: [
+                    {
+                        path: "authAdmin",
+                        component: authAdmin,
+                        name: "管理员管理",
+                        icon: "0",
+                        meta: {
+                            authRule: ["admin/auth.admin/index"]
+                        }
+                    },
+                    {
+                        path: "authRole",
+                        component: authRole,
+                        name: "角色管理",
+                        icon: "0",
+                        meta: {
+                            authRule: ["admin/auth.role/index"]
+                        }
+                    },
+                    {
+                        path: "authPermissionRule",
+                        component: authPermissionRule,
+                        name: "权限管理",
+                        icon: "0",
+                        meta: {
+                            authRule: ["admin/auth.permission_rule/index"]
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        path: "/adManage",
+        redirect: "/adManage/adSite",
+        component: Home,
+        icon: "guanggao",
+        name: "广告相关",
+        meta: {
+            authRule: ["ad_manage"]
+        },
+        // noDropdown: true,
+        children: [
+            {
+                path: "adSite",
+                component: adSite,
+                name: "广告位管理",
+                icon: "0",
+                meta: {
+                    authRule: ["admin/ad.site/index"]
+                }
+            },
+            {
+                path: "ad",
+                component: ad,
+                name: "广告管理",
+                icon: "0",
+                meta: {
+                    authRule: ["admin/ad.ad/index"]
+                }
+            }
+        ]
+    }
+];

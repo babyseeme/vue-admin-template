@@ -1,27 +1,30 @@
-import Vue from 'vue'
+import "babel-polyfill"; // 解决Ie9
+import Vue from "vue";
+import App from "./App.vue";
+import router from "./router/index";
+import store from "./store/index";
+import "./element";
+import * as filters from "./filtres/index"; // 全局过滤器
+import "./role"; // 权限
 
-import 'normalize.css/normalize.css' // A modern alternative to CSS resets
+import "./mock"; // 模拟数据
 
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
-import locale from 'element-ui/lib/locale/lang/en' // lang i18n
+import "./assets/icons/iconfont";
+import IconSvg from "./components/common/IconSvg.vue"; // svg组件
 
-import '@/styles/index.scss' // global css
+import VueParticles from "vue-particles";
+Vue.use(VueParticles);
+// 注册全局组件（register global）
+Vue.component("icon-svg", IconSvg);
 
-import App from './App'
-import router from './router'
-import store from './store'
+// 注册全局实用程序过滤器（register global utility filters）.
+Object.keys(filters).forEach(key => {
+    Vue.filter(key, filters[key]);
+});
 
-import '@/icons' // icon
-import '@/permission' // permission control
-
-Vue.use(ElementUI, { locale })
-
-Vue.config.productionTip = false
-
+Vue.config.productionTip = false;
 new Vue({
-  el: '#app',
-  router,
-  store,
-  render: h => h(App)
-})
+    router,
+    store,
+    render: h => h(App)
+}).$mount("#app");
